@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>プロンプト管理</title>
+    <style>
+        body { font-family: Arial, sans-serif; padding: 20px; }
+        h1 { color: #333; }
+        .prompt-item { margin-bottom: 20px; }
+        .btn { margin-right: 10px; text-decoration: none; padding: 5px 10px; border: 1px solid #333; border-radius: 5px; }
+        .btn:hover { background-color: #f0f0f0; }
+    </style>
+</head>
+<body>
+    <h1>プロンプト管理</h1>
+
+    <h2>新しいプロンプトを登録</h2>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        ジャンル名:<br>
+        {{ form.genre(size=50) }}<br><br>
+        タイトル生成用プロンプト:<br>
+        {{ form.title_prompt(rows=5, cols=70) }}<br><br>
+        本文生成用プロンプト:<br>
+        {{ form.body_prompt(rows=10, cols=70) }}<br><br>
+        {{ form.submit() }}
+    </form>
+
+    <h2>登録済みプロンプト一覧</h2>
+    {% for prompt in prompts %}
+        <div class="prompt-item">
+            <strong>ジャンル:</strong> {{ prompt.genre }}<br>
+            <strong>タイトルプロンプト:</strong> {{ prompt.title_prompt }}<br>
+            <strong>本文プロンプト:</strong> {{ prompt.body_prompt }}<br>
+            <a class="btn" href="{{ url_for('main.delete_prompt', prompt_id=prompt.id) }}">削除</a>
+        </div>
+    {% else %}
+        <p>まだプロンプトが登録されていません。</p>
+    {% endfor %}
+
+    <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
+</body>
+</html>

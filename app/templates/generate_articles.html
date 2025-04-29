@@ -1,0 +1,19 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>キーワード入力</title>
+</head>
+<body>
+    <h1>記事生成用キーワード入力</h1>
+    <form method="POST">
+        {{ form.hidden_tag() }}
+        使用するプロンプト:<br>
+        {{ form.prompt_id() }}<br><br>
+        キーワード入力:<br>
+        {{ form.keywords(rows=10, cols=60) }}<br><br>
+        {{ form.submit() }}
+    </form>
+    <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
+</body>
+</html>

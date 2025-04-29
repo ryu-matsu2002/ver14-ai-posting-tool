@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>記事編集</title>
+</head>
+<body>
+    <h1>記事を編集</h1>
+    <form method="POST">
+        タイトル:<br>
+        <input type="text" name="title" value="{{ post.title }}"><br><br>
+        本文:<br>
+        <textarea name="body" rows="20" cols="80">{{ post.body }}</textarea><br><br>
+        <input type="submit" value="保存">
+    </form>
+    <p><a href="{{ url_for('main.admin_log') }}">投稿ログへ戻る</a></p>
+</body>
+</html>
