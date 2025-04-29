@@ -18,6 +18,8 @@ bp = Blueprint('main', __name__)
 
 @bp.route('/')
 def index():
+    if not current_user.is_authenticated:
+        return redirect(url_for('main.register'))
     return render_template('index.html')
 
 @bp.route('/register', methods=['GET', 'POST'])
