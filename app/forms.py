@@ -6,7 +6,7 @@ class RegistrationForm(FlaskForm):
     username = StringField('ユーザー名', validators=[DataRequired(), Length(min=2, max=64)])
     email = StringField('メールアドレス', validators=[DataRequired(), Email()])
     password = PasswordField('パスワード', validators=[DataRequired(), Length(min=6)])
-    confirm_password = PasswordField('パスワード再入力', validators=[DataRequired(), EqualTo('password')])
+    confirm = PasswordField('パスワード再入力', validators=[DataRequired(), EqualTo('password', message='パスワードが一致しません')])
     submit = SubmitField('登録')
 
 class LoginForm(FlaskForm):
