@@ -1,19 +1,56 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>キーワード入力</title>
-</head>
-<body>
-    <h1>記事生成用キーワード入力</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        使用するプロンプト:<br>
-        {{ form.prompt_id() }}<br><br>
-        キーワード入力:<br>
-        {{ form.keywords(rows=10, cols=60) }}<br><br>
-        {{ form.submit() }}
-    </form>
-    <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
-</body>
-</html>
+{% extends "base.html" %}
+
+{% block title %}記事生成 | AI記事生成ツール{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">ダッシュボード</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.admin_log') }}">投稿ログ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.generate_articles') }}">記事生成</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_sites') }}">サイト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_prompts') }}">プロンプト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard_graph') }}">📊グラフ分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">ログアウト</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-9">
+            <h1>記事生成用キーワード入力</h1>
+            <form method="POST">
+                {{ form.hidden_tag() }}
+                <div class="form-group">
+                    <label for="prompt_id">使用するプロンプト:</label><br>
+                    {{ form.prompt_id(class="form-control") }}
+                </div><br>
+                <div class="form-group">
+                    <label for="keywords">キーワード入力:</label><br>
+                    {{ form.keywords(class="form-control", rows=10, cols=60) }}
+                </div><br>
+                <div class="form-group">
+                    {{ form.submit(class="btn btn-primary") }}
+                </div>
+            </form>
+            <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

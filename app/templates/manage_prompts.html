@@ -1,43 +1,54 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>プロンプト管理</title>
-    <style>
-        body { font-family: Arial, sans-serif; padding: 20px; }
-        h1 { color: #333; }
-        .prompt-item { margin-bottom: 20px; }
-        .btn { margin-right: 10px; text-decoration: none; padding: 5px 10px; border: 1px solid #333; border-radius: 5px; }
-        .btn:hover { background-color: #f0f0f0; }
-    </style>
-</head>
-<body>
-    <h1>プロンプト管理</h1>
+{% extends 'base.html' %}
 
-    <h2>新しいプロンプトを登録</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        ジャンル名:<br>
-        {{ form.genre(size=50) }}<br><br>
-        タイトル生成用プロンプト:<br>
-        {{ form.title_prompt(rows=5, cols=70) }}<br><br>
-        本文生成用プロンプト:<br>
-        {{ form.body_prompt(rows=10, cols=70) }}<br><br>
-        {{ form.submit() }}
-    </form>
+{% block title %}プロンプト管理 | AI記事生成ツール{% endblock %}
 
-    <h2>登録済みプロンプト一覧</h2>
-    {% for prompt in prompts %}
-        <div class="prompt-item">
-            <strong>ジャンル:</strong> {{ prompt.genre }}<br>
-            <strong>タイトルプロンプト:</strong> {{ prompt.title_prompt }}<br>
-            <strong>本文プロンプト:</strong> {{ prompt.body_prompt }}<br>
-            <a class="btn" href="{{ url_for('main.delete_prompt', prompt_id=prompt.id) }}">削除</a>
-        </div>
-    {% else %}
-        <p>まだプロンプトが登録されていません。</p>
-    {% endfor %}
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">プロンプト管理</h1>
+        <a href="{{ url_for('main.index') }}" class="text-blue-500 hover:underline">トップページに戻る</a>
+    </div>
 
-    <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
-</body>
-</html>
+    <!-- プロンプト登録フォーム -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-4">新しいプロンプトを登録</h2>
+        <form method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                <label for="genre" class="block font-semibold">ジャンル名</label>
+                {{ form.genre(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <div class="mb-4">
+                <label for="title_prompt" class="block font-semibold">タイトル生成用プロンプト</label>
+                {{ form.title_prompt(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400", rows=5) }}
+            </div>
+            <div class="mb-4">
+                <label for="body_prompt" class="block font-semibold">本文生成用プロンプト</label>
+                {{ form.body_prompt(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400", rows=10) }}
+            </div>
+            <div class="mb-4">
+                {{ form.submit(class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600") }}
+            </div>
+        </form>
+    </div>
+
+    <!-- 登録済みプロンプト一覧 -->
+    <div>
+        <h2 class="text-xl font-semibold mb-4">登録済みプロンプト一覧</h2>
+        {% if prompts %}
+            <div class="space-y-4">
+                {% for prompt in prompts %}
+                    <div class="prompt-item p-4 border rounded shadow-sm">
+                        <strong class="font-medium">ジャンル:</strong> {{ prompt.genre }}<br>
+                        <strong class="font-medium">タイトルプロンプト:</strong> {{ prompt.title_prompt }}<br>
+                        <strong class="font-medium">本文プロンプト:</strong> {{ prompt.body_prompt }}<br>
+                        <a href="{{ url_for('main.delete_prompt', prompt_id=prompt.id) }}" class="btn text-red-500 hover:underline mt-2">削除</a>
+                    </div>
+                {% endfor %}
+            </div>
+        {% else %}
+            <p>まだプロンプトが登録されていません。</p>
+        {% endif %}
+    </div>
+</div>
+{% endblock %}

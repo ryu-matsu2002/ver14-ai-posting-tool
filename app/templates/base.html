@@ -1,27 +1,30 @@
 <!DOCTYPE html>
 <html lang="ja">
 <head>
-    <meta charset="UTF-8">
-    <title>{% block title %}AI記事投稿ツール{% endblock %}</title>
-    <script src="https://cdn.tailwindcss.com"></script>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>{% block title %}AI記事投稿ツール{% endblock %}</title>
+  <!-- Tailwind や FontAwesome などお好みのCSSをヘッダで読み込んでOK -->
+  <link rel="stylesheet" href="https://cdn.tailwindcss.com">
+  <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
-<body class="bg-gray-100 min-h-screen text-gray-800">
-    <!-- ナビゲーション -->
-    <nav class="bg-white shadow p-4 mb-6">
-        <ul class="flex space-x-4">
-            <li><a href="{{ url_for('main.dashboard') }}" class="text-blue-600 hover:underline">ダッシュボード</a></li>
-            <li><a href="{{ url_for('main.admin_log') }}" class="text-blue-600 hover:underline">投稿ログ</a></li>
-            <li><a href="{{ url_for('main.generate_articles') }}" class="text-blue-600 hover:underline">記事生成</a></li>
-            <li><a href="{{ url_for('main.manage_sites') }}" class="text-blue-600 hover:underline">サイト管理</a></li>
-            <li><a href="{{ url_for('main.manage_prompts') }}" class="text-blue-600 hover:underline">プロンプト管理</a></li>
-            <li><a href="{{ url_for('main.dashboard_graph') }}" class="text-blue-600 hover:underline">📊グラフ分析</a></li>
-            <li><a href="{{ url_for('main.logout') }}" class="text-red-500 hover:underline">ログアウト</a></li>
-        </ul>
-    </nav>
+<body>
+  <!-- サイドバー -->
+  <nav id="sidebar">
+    <ul>
+      <li><a href="{{ url_for('main.dashboard') }}" class="{% if request.endpoint=='main.dashboard' %}active{% endif %}">ダッシュボード</a></li>
+      <li><a href="{{ url_for('main.generate_articles') }}" class="{% if request.endpoint=='main.generate_articles' %}active{% endif %}">記事生成</a></li>
+      <li><a href="{{ url_for('main.admin_log') }}" class="{% if request.endpoint=='main.admin_log' %}active{% endif %}">投稿ログ</a></li>
+      <li><a href="{{ url_for('main.manage_sites') }}" class="{% if request.endpoint=='main.manage_sites' %}active{% endif %}">サイト管理</a></li>
+      <li><a href="{{ url_for('main.manage_prompts') }}" class="{% if request.endpoint=='main.manage_prompts' %}active{% endif %}">プロンプト管理</a></li>
+      <li><a href="{{ url_for('main.dashboard_graph') }}" class="{% if request.endpoint=='main.dashboard_graph' %}active{% endif %}">📊グラフ分析</a></li>
+      <li><a href="{{ url_for('main.logout') }}">ログアウト</a></li>
+    </ul>
+  </nav>
 
-    <!-- メインコンテンツ -->
-    <main class="max-w-3xl mx-auto px-4">
-        {% block content %}{% endblock %}
-    </main>
+  <!-- コンテンツエリア -->
+  <div id="content-area">
+    {% block content %}{% endblock %}
+  </div>
 </body>
 </html>

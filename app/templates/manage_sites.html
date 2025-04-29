@@ -1,28 +1,49 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>サイト管理</title>
-</head>
-<body>
-    <h1>登録サイト一覧</h1>
-    <ul>
-        {% for site in sites %}
-            <li>{{ site.url }} (ユーザー名: {{ site.username }})</li>
+{% extends 'base.html' %}
+
+{% block title %}サイト管理 | AI記事生成ツール{% endblock %}
+
+{% block content %}
+<div class="container mx-auto p-6">
+    <div class="flex justify-between items-center mb-6">
+        <h1 class="text-2xl font-bold">登録サイト一覧</h1>
+        <a href="{{ url_for('main.index') }}" class="text-blue-500 hover:underline">トップページに戻る</a>
+    </div>
+
+    <!-- サイト一覧 -->
+    <div class="mb-6">
+        <h2 class="text-xl font-semibold mb-4">登録されているサイト</h2>
+        {% if sites %}
+            <ul class="list-disc pl-6">
+                {% for site in sites %}
+                    <li>{{ site.url }} (ユーザー名: {{ site.username }})</li>
+                {% endfor %}
+            </ul>
         {% else %}
-            <li>まだ登録されたサイトはありません。</li>
-        {% endfor %}
-    </ul>
+            <p>まだ登録されたサイトはありません。</p>
+        {% endif %}
+    </div>
 
-    <h2>新しいサイトを登録</h2>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        {{ form.url.label }} {{ form.url(size=64) }}<br>
-        {{ form.username.label }} {{ form.username(size=32) }}<br>
-        {{ form.app_password.label }} {{ form.app_password(size=32) }}<br>
-        {{ form.submit() }}
-    </form>
-
-    <p><a href="{{ url_for('main.index') }}">トップへ戻る</a></p>
-</body>
-</html>
+    <!-- 新しいサイトを登録 -->
+    <div>
+        <h2 class="text-xl font-semibold mb-4">新しいサイトを登録</h2>
+        <form method="POST" class="space-y-4">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                <label for="url" class="block font-semibold">サイトURL</label>
+                {{ form.url(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <div class="mb-4">
+                <label for="username" class="block font-semibold">ユーザー名</label>
+                {{ form.username(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <div class="mb-4">
+                <label for="app_password" class="block font-semibold">アプリパスワード</label>
+                {{ form.app_password(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <div class="mb-4">
+                {{ form.submit(class="w-full bg-green-500 text-white py-2 px-4 rounded hover:bg-green-600") }}
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}

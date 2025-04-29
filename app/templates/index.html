@@ -1,10 +1,42 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>AI記事生成ツール</title>
-</head>
-<body>
-    <h1>AI記事生成ツールが起動しました！🚀</h1>
-</body>
-</html>
+{% extends 'base.html' %}
+
+{% block title %}AI記事生成ツール | ホーム{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">ダッシュボード</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.admin_log') }}">投稿ログ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.generate_articles') }}">記事生成</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_sites') }}">サイト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_prompts') }}">プロンプト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard_graph') }}">📊グラフ分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">ログアウト</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-9">
+            <h1 class="text-2xl font-bold mb-4">AI記事生成ツールが起動しました！🚀</h1>
+            <p>ようこそ、ツールが正常に起動しました！ツールメニューから各機能を選択して使用してください。</p>
+        </div>
+    </div>
+</div>
+{% endblock %}

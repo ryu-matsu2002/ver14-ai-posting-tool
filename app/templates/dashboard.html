@@ -1,18 +1,48 @@
-<!DOCTYPE html>
-<html lang="ja">
-<head>
-    <meta charset="UTF-8">
-    <title>ダッシュボード | AI記事生成ツール</title>
-</head>
-<body>
-    <h1>ダッシュボード 📊</h1>
+{% extends "base.html" %}
 
-    <h2>あなたの統計</h2>
-    <ul>
-        <li>生成した記事数：{{ article_count }}件</li>
-        <li>OpenAI API使用トークン数：{{ api_usage_tokens }} tokens</li>
-    </ul>
+{% block title %}ダッシュボード | AI記事生成ツール{% endblock %}
 
-    <p><a href="{{ url_for('main.index') }}">トップページに戻る</a></p>
-</body>
-</html>
+{% block content %}
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">ダッシュボード</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.admin_log') }}">投稿ログ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.generate_articles') }}">記事生成</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_sites') }}">サイト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_prompts') }}">プロンプト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard_graph') }}">📊グラフ分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">ログアウト</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
+
+        <div class="col-md-9">
+            <h1>ダッシュボード 📊</h1>
+
+            <h2>あなたの統計</h2>
+            <ul>
+                <li>生成した記事数：{{ article_count }}件</li>
+                <li>OpenAI API使用トークン数：{{ api_usage_tokens }} tokens</li>
+            </ul>
+            <p><a href="{{ url_for('main.index') }}">トップページに戻る</a></p>
+        </div>
+    </div>
+</div>
+{% endblock %}

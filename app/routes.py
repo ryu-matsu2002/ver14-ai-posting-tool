@@ -18,13 +18,13 @@ bp = Blueprint('main', __name__)
 @bp.route('/')
 def index():
     if not current_user.is_authenticated:
-        return redirect(url_for('main.dashboard'))  # ダッシュボードにリダイレクト
+        return redirect(url_for('main.login'))
     return redirect(url_for('main.dashboard'))
 
 @bp.route('/register', methods=['GET', 'POST'])
 def register():
     if current_user.is_authenticated:
-        return redirect(url_for('main.index'))
+        return redirect(url_for('main.dashboard'))
     form = RegistrationForm()
     if form.validate_on_submit():
         user = User(username=form.username.data, email=form.email.data)
@@ -55,7 +55,7 @@ def login():
 def logout():
     logout_user()
     flash('ログアウトしました。')
-    return redirect(url_for('main.dashboard'))
+    return redirect(url_for('main.login'))
 
 @bp.route('/dashboard')
 @login_required

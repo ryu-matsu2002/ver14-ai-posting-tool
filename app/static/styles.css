@@ -1,0 +1,41 @@
+/* app/static/styles.css */
+body {
+    margin: 0;
+    font-family: Arial, sans-serif;
+    background-color: #f4f4f9;
+  }
+  
+  /* サイドバー */
+  #sidebar {
+    position: fixed;
+    width: 200px;
+    height: 100vh;
+    background-color: #2C3E50;
+    color: white;
+    padding-top: 20px;
+    box-shadow: 2px 0 5px rgba(0,0,0,0.1);
+  }
+  #sidebar ul {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+  }
+  #sidebar li {
+    margin: 0;
+  }
+  #sidebar a {
+    display: block;
+    padding: 12px 20px;
+    color: white;
+    text-decoration: none;
+  }
+  #sidebar a:hover, #sidebar a.active {
+    background-color: #1A2733;
+  }
+  
+  /* メインコンテンツ */
+  #content-area {
+    margin-left: 200px;
+    padding: 20px;
+  }
+  

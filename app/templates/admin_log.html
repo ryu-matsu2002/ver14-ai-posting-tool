@@ -1,57 +1,92 @@
 {% extends 'base.html' %}
+
+{% block title %}投稿ログ | AI記事生成ツール{% endblock %}
+
 {% block content %}
-<div class="p-6">
-  <h1 class="text-2xl font-bold mb-4">投稿ログ</h1>
+<div class="container">
+    <div class="row">
+        <div class="col-md-3">
+            <nav>
+                <ul class="nav flex-column">
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard') }}">ダッシュボード</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.admin_log') }}">投稿ログ</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.generate_articles') }}">記事生成</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_sites') }}">サイト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.manage_prompts') }}">プロンプト管理</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.dashboard_graph') }}">📊グラフ分析</a>
+                    </li>
+                    <li class="nav-item">
+                        <a class="nav-link" href="{{ url_for('main.logout') }}">ログアウト</a>
+                    </li>
+                </ul>
+            </nav>
+        </div>
 
-  <!-- サイト選択 -->
-  <form method="get" class="mb-4">
-    <label for="site_id" class="mr-2 text-sm">サイト選択:</label>
-    <select name="site_id" id="site_id" onchange="this.form.submit()" class="border rounded p-1 text-sm">
-      {% for site in user_sites %}
-        <option value="{{ site.id }}" {% if site.id == current_site.id %}selected{% endif %}>{{ site.url }}</option>
-      {% endfor %}
-    </select>
-  </form>
+        <div class="col-md-9">
+            <h1 class="text-2xl font-bold mb-4">投稿ログ</h1>
 
-  <!-- 投稿一覧 -->
-  <div class="overflow-x-auto">
-    <table class="min-w-full bg-white shadow rounded-lg text-sm">
-      <thead>
-        <tr class="bg-gray-100 text-left">
-          <th class="py-2 px-4">タイトル</th>
-          <th class="py-2 px-4">キーワード</th>
-          <th class="py-2 px-4">投稿予定日時</th>
-          <th class="py-2 px-4">ステータス</th>
-          <th class="py-2 px-4">操作</th>
-        </tr>
-      </thead>
-      <tbody>
-        {% for post in posts %}
-        <tr class="border-t hover:bg-gray-50">
-          <td class="py-2 px-4">{{ post.title[:30] }}{% if post.title|length > 30 %}...{% endif %}</td>
-          <td class="py-2 px-4 text-gray-600">{{ post.keyword }}</td>
-          <td class="py-2 px-4 text-gray-600">
-            {{ post.scheduled_time.strftime('%Y-%m-%d %H:%M') if post.scheduled_time else '未設定' }}
-          </td>
-          <td class="py-2 px-4">
-            {% if post.posted %}
-              <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">投稿済み</span>
-            {% else %}
-              <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded">生成済み</span>
-            {% endif %}
-          </td>
-          <td class="py-2 px-4 space-x-1">
-            <a href="{{ url_for('main.view_post', post_id=post.id) }}" class="text-blue-600 hover:underline">プレビュー</a>
-            <a href="{{ url_for('main.edit_post', post_id=post.id) }}" class="text-yellow-600 hover:underline">編集</a>
-            <a href="{{ url_for('main.delete_post', post_id=post.id) }}" class="text-red-600 hover:underline" onclick="return confirm('削除してもよろしいですか？');">削除</a>
-            {% if not post.posted %}
-              <a href="{{ url_for('main.post_now', post_id=post.id) }}" class="text-green-600 hover:underline">即時投稿</a>
-            {% endif %}
-          </td>
-        </tr>
-        {% endfor %}
-      </tbody>
-    </table>
-  </div>
+            <!-- サイト選択 -->
+            <form method="get" class="mb-4">
+                <label for="site_id" class="mr-2 text-sm">サイト選択:</label>
+                <select name="site_id" id="site_id" onchange="this.form.submit()" class="border rounded p-1 text-sm">
+                    {% for site in user_sites %}
+                        <option value="{{ site.id }}" {% if site.id == current_site.id %}selected{% endif %}>{{ site.url }}</option>
+                    {% endfor %}
+                </select>
+            </form>
+
+            <!-- 投稿一覧 -->
+            <div class="overflow-x-auto">
+                <table class="min-w-full bg-white shadow rounded-lg text-sm">
+                    <thead>
+                        <tr class="bg-gray-100 text-left">
+                            <th class="py-2 px-4">タイトル</th>
+                            <th class="py-2 px-4">キーワード</th>
+                            <th class="py-2 px-4">投稿予定日時</th>
+                            <th class="py-2 px-4">ステータス</th>
+                            <th class="py-2 px-4">操作</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for post in posts %}
+                        <tr class="border-t hover:bg-gray-50">
+                            <td class="py-2 px-4">{{ post.title[:30] }}{% if post.title|length > 30 %}...{% endif %}</td>
+                            <td class="py-2 px-4 text-gray-600">{{ post.keyword }}</td>
+                            <td class="py-2 px-4 text-gray-600">
+                                {{ post.scheduled_time.strftime('%Y-%m-%d %H:%M') if post.scheduled_time else '未設定' }}
+                            </td>
+                            <td class="py-2 px-4">
+                                {% if post.posted %}
+                                    <span class="bg-green-100 text-green-800 text-xs font-medium px-2 py-1 rounded">投稿済み</span>
+                                {% else %}
+                                    <span class="bg-yellow-100 text-yellow-800 text-xs font-medium px-2 py-1 rounded">生成済み</span>
+                                {% endif %}
+                            </td>
+                            <td class="py-2 px-4 space-x-1">
+                                <a href="{{ url_for('main.view_post', post_id=post.id) }}" class="text-blue-600 hover:underline">プレビュー</a>
+                                <a href="{{ url_for('main.edit_post', post_id=post.id) }}" class="text-yellow-600 hover:underline">編集</a>
+                                <a href="{{ url_for('main.delete_post', post_id=post.id) }}" class="text-red-600 hover:underline" onclick="return confirm('削除してもよろしいですか？');">削除</a>
+                                {% if not post.posted %}
+                                    <a href="{{ url_for('main.post_now', post_id=post.id) }}" class="text-green-600 hover:underline">即時投稿</a>
+                                {% endif %}
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </div>
 </div>
 {% endblock %}
