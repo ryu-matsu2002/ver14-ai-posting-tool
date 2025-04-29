@@ -1,0 +1,13 @@
+<!-- templates/base.html の一例 -->
+<nav>
+    <ul>
+      <li><a href="{{ url_for('main.dashboard') }}">ダッシュボード</a></li>
+      <li><a href="{{ url_for('main.admin_log') }}">投稿ログ</a></li>
+      <li><a href="{{ url_for('main.generate_articles') }}">記事生成</a></li>
+      <li><a href="{{ url_for('main.manage_sites') }}">サイト管理</a></li>
+      <li><a href="{{ url_for('main.manage_prompts') }}">プロンプト管理</a></li>
+      <li><a href="{{ url_for('main.dashboard_graph') }}">📊グラフ分析</a></li>
+      <li><a href="{{ url_for('main.logout') }}">ログアウト</a></li>
+    </ul>
+  </nav>
+  

@@ -3,7 +3,6 @@ from flask_login import login_user, logout_user, current_user, login_required
 from app.forms import RegistrationForm, LoginForm, SiteForm, KeywordForm, PromptForm
 from app.models import User, Site, ScheduledPost, Prompt
 from app import db
-from app.article_generator import generate_article_from_keyword
 from app.wp_client import post_to_wordpress
 from app.image_search import search_image
 import os
@@ -57,6 +56,14 @@ def logout():
     logout_user()
     flash('ログアウトしました。')
     return redirect(url_for('main.index'))
+
+@bp.route('/dashboard')
+@login_required
+def dashboard():
+    article_count = ScheduledPost.query.filter_by(user_id=current_user.id).count()
+    api_usage_tokens = db.session.query(db.func.sum(ScheduledPost.api_tokens_used)).filter_by(user_id=current_user.id).scalar() or 0
+    return render_template('dashboard.html', article_count=article_count, api_usage_tokens=api_usage_tokens)
+
 @bp.route('/manage-sites', methods=['GET', 'POST'])
 @login_required
 def manage_sites():
@@ -79,8 +86,6 @@ def manage_sites():
 @login_required
 def generate_articles():
     form = KeywordForm()
-
-    # プロンプト選択肢を動的に設定
     prompts = Prompt.query.filter_by(user_id=current_user.id).all()
     form.prompt_id.choices = [(p.id, p.genre) for p in prompts]
 
@@ -92,13 +97,13 @@ def generate_articles():
             return redirect(url_for('main.generate_articles'))
 
         selected_prompt = Prompt.query.get(form.prompt_id.data)
-
         posts_to_schedule = []
 
         for keyword in keywords:
-            title = generate_article_from_prompt(selected_prompt.title_prompt, keyword)
-            body = generate_article_from_prompt(selected_prompt.body_prompt, keyword)
+            title, title_tokens = generate_article_from_prompt(selected_prompt.title_prompt, keyword)
+            body, body_tokens = generate_article_from_prompt(selected_prompt.body_prompt, keyword)
             image_url = search_image(keyword)
+            total_tokens = title_tokens + body_tokens
 
             if title and body:
                 post = ScheduledPost(
@@ -107,40 +112,34 @@ def generate_articles():
                     body=body,
                     featured_image=image_url,
                     user_id=current_user.id,
-                    site_id=current_user.sites[0].id  # ← 仮：今は最初に登録したサイトを使う
+                    site_id=current_user.sites[0].id,
+                    api_tokens_used=total_tokens
                 )
                 posts_to_schedule.append(post)
             else:
                 flash(f"キーワード「{keyword}」の記事生成に失敗しました。")
 
-        # ここからスケジュール設定！！
+        # スケジュール設定
         now = datetime.now(pytz.timezone('Asia/Tokyo'))
         tomorrow = (now + timedelta(days=1)).replace(hour=10, minute=0, second=0, microsecond=0)
 
         scheduled_posts = []
-
         current_time = tomorrow
         post_counter = 0
-        daily_post_count = random.randint(3, 5)  # 初日の投稿数（3〜5記事）
+        daily_post_count = random.randint(3, 5)
 
         for post in posts_to_schedule:
             if post_counter >= daily_post_count:
-                # 次の日へ移動
                 current_time += timedelta(days=1)
                 daily_post_count = random.randint(3, 5)
                 post_counter = 0
-
-                # 新しい日の開始時刻を設定（10:00）
                 current_time = current_time.replace(hour=10, minute=0)
 
-            # ランダムに次の投稿時間を決める（10:00〜22:00の範囲）
-            min_minutes = 120  # 最低2時間（120分）あける
-            max_minutes = 240  # 最大4時間（240分）以内でランダム間隔
-
+            min_minutes = 120
+            max_minutes = 240
             random_minutes = random.randint(min_minutes, max_minutes)
             current_time += timedelta(minutes=random_minutes)
 
-            # 22:00を超えたら次の日へ繰り越し
             if current_time.hour >= 22:
                 current_time = (current_time + timedelta(days=1)).replace(hour=10, minute=0)
                 daily_post_count = random.randint(3, 5)
@@ -150,7 +149,6 @@ def generate_articles():
             scheduled_posts.append(post)
             post_counter += 1
 
-        # すべてDBに保存
         db.session.add_all(scheduled_posts)
         db.session.commit()
 
@@ -159,14 +157,12 @@ def generate_articles():
 
     return render_template('generate_articles.html', form=form)
 
-
 @bp.route('/admin-log')
 @login_required
 def admin_log():
     site_id = request.args.get('site_id', type=int)
     user_sites = current_user.sites
 
-    # 初期表示時、最初のサイトを選択
     if not site_id and user_sites:
         site_id = user_sites[0].id
 
@@ -174,7 +170,6 @@ def admin_log():
     posts = ScheduledPost.query.filter_by(user_id=current_user.id, site_id=site_id).order_by(ScheduledPost.scheduled_time.asc()).all()
 
     return render_template('admin_log.html', posts=posts, user_sites=user_sites, current_site=current_site)
-
 
 @bp.route('/view-post/<int:post_id>')
 @login_required
@@ -207,7 +202,7 @@ def delete_post(post_id):
 @login_required
 def post_now(post_id):
     post = ScheduledPost.query.get_or_404(post_id)
-    site = current_user.sites[0]  # 仮：最初のサイトを使う
+    site = current_user.sites[0]
 
     success = post_to_wordpress(
         site_url=site.url,
@@ -215,7 +210,7 @@ def post_now(post_id):
         app_password=site.app_password,
         title=post.title,
         content=post.body,
-        featured_image_url=post.featured_image  # ← アイキャッチ画像も渡す！
+        featured_image_url=post.featured_image
     )
 
     if success:
@@ -227,8 +222,6 @@ def post_now(post_id):
 
     return redirect(url_for('main.admin_log'))
 
-
-# プロンプト管理ページ
 @bp.route('/manage-prompts', methods=['GET', 'POST'])
 @login_required
 def manage_prompts():
@@ -244,11 +237,10 @@ def manage_prompts():
         db.session.commit()
         flash('プロンプトが保存されました！')
         return redirect(url_for('main.manage_prompts'))
-    
+
     prompts = Prompt.query.filter_by(user_id=current_user.id).all()
     return render_template('manage_prompts.html', form=form, prompts=prompts)
 
-# プロンプト削除機能
 @bp.route('/delete-prompt/<int:prompt_id>')
 @login_required
 def delete_prompt(prompt_id):
@@ -274,7 +266,88 @@ def generate_article_from_prompt(prompt_text, keyword):
             timeout=20,
         )
         result = response['choices'][0]['message']['content']
-        return result.strip()
+        tokens_used = response['usage']['total_tokens']
+        return result.strip(), tokens_used
     except Exception as e:
         current_app.logger.error(f"プロンプト生成エラー: {e}")
-        return None
+        return None, 0
+
+@bp.route('/dashboard-graph')
+@login_required
+def dashboard_graph():
+    from sqlalchemy import func
+    from datetime import datetime, timedelta
+
+    today = datetime.utcnow().date()
+    start_date = today - timedelta(days=29)
+
+    user_sites = current_user.sites
+    site_id = request.args.get('site_id', type=int)
+    view = request.args.get('view', 'daily')  # 追加！viewパラメータ取得（デフォルトはdaily）
+
+    # 初期表示（site_id指定なし）の場合は最初のサイト
+    if not site_id and user_sites:
+        site_id = user_sites[0].id
+
+    current_site = Site.query.get(site_id)
+
+    # クエリ基本
+    query = db.session.query(
+        func.date(ScheduledPost.created_at).label('day'),
+        func.count().label('article_count')
+    ).filter(
+        ScheduledPost.user_id == current_user.id,
+        ScheduledPost.site_id == site_id,
+        ScheduledPost.created_at >= start_date
+    )
+
+    # 集計粒度を変更（日別 or 週別 or 月別）
+    if view == 'weekly':
+        # 週番号でグループ化
+        query = db.session.query(
+            func.strftime('%Y-%W', ScheduledPost.created_at).label('week'),
+            func.count().label('article_count')
+        ).filter(
+            ScheduledPost.user_id == current_user.id,
+            ScheduledPost.site_id == site_id,
+            ScheduledPost.created_at >= start_date
+        ).group_by('week')
+
+        labels_counts = query.all()
+        labels = [w.week for w in labels_counts]
+        counts = [w.article_count for w in labels_counts]
+
+    elif view == 'monthly':
+        # 月でグループ化
+        query = db.session.query(
+            func.strftime('%Y-%m', ScheduledPost.created_at).label('month'),
+            func.count().label('article_count')
+        ).filter(
+            ScheduledPost.user_id == current_user.id,
+            ScheduledPost.site_id == site_id,
+            ScheduledPost.created_at >= start_date
+        ).group_by('month')
+
+        labels_counts = query.all()
+        labels = [m.month for m in labels_counts]
+        counts = [m.article_count for m in labels_counts]
+
+    else:
+        # デフォルト（日別）
+        query = query.group_by(func.date(ScheduledPost.created_at))
+
+        labels_counts = query.all()
+
+        # 30日分の日付を全て作る
+        date_labels = [(start_date + timedelta(days=i)).strftime('%Y-%m-%d') for i in range(30)]
+        article_data = {p.day.strftime('%Y-%m-%d'): p.article_count for p in labels_counts}
+        labels = date_labels
+        counts = [article_data.get(date, 0) for date in labels]
+
+    return render_template('dashboard_graph.html',
+                           labels=labels,
+                           counts=counts,
+                           user_sites=user_sites,
+                           current_site=current_site)
+
+

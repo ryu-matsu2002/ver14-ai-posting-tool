@@ -47,6 +47,7 @@ class ScheduledPost(db.Model):
     posted = db.Column(db.Boolean, default=False)
     user_id = db.Column(db.Integer, db.ForeignKey('user.id'), nullable=False)
     site_id = db.Column(db.Integer, db.ForeignKey('site.id', name='fk_scheduled_post_site_id'), nullable=True)  # ←ここ修正  # ← サイト紐付け（後ほど追加対応）
+    api_tokens_used = db.Column(db.Integer, default=0)
 
     def __repr__(self):
         return f'<ScheduledPost {self.keyword}>'

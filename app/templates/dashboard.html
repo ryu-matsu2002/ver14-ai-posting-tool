@@ -1,0 +1,18 @@
+<!DOCTYPE html>
+<html lang="ja">
+<head>
+    <meta charset="UTF-8">
+    <title>ダッシュボード | AI記事生成ツール</title>
+</head>
+<body>
+    <h1>ダッシュボード 📊</h1>
+
+    <h2>あなたの統計</h2>
+    <ul>
+        <li>生成した記事数：{{ article_count }}件</li>
+        <li>OpenAI API使用トークン数：{{ api_usage_tokens }} tokens</li>
+    </ul>
+
+    <p><a href="{{ url_for('main.index') }}">トップページに戻る</a></p>
+</body>
+</html>

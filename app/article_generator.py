@@ -29,7 +29,8 @@ def generate_article_from_keyword(keyword):
             timeout=20,
         )
         article_content = response['choices'][0]['message']['content']
-        return article_content.strip()
+        tokens_used = response['usage']['total_tokens']
+        return article_content.strip(), tokens_used
 
     except Exception as e:
         current_app.logger.error(f"記事生成エラー: {e}")

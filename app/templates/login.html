@@ -3,15 +3,26 @@
 <head>
     <meta charset="UTF-8">
     <title>ログイン</title>
+    <script src="https://cdn.tailwindcss.com"></script>
 </head>
-<body>
-    <h1>ログイン</h1>
-    <form method="POST">
-        {{ form.hidden_tag() }}
-        {{ form.email.label }} {{ form.email(size=32) }}<br>
-        {{ form.password.label }} {{ form.password(size=32) }}<br>
-        {{ form.submit() }}
-    </form>
-    <p>アカウントがない方は <a href="{{ url_for('main.register') }}">新規登録</a></p>
+<body class="bg-gray-100 flex items-center justify-center min-h-screen">
+    <div class="bg-white shadow-md rounded-lg p-8 w-full max-w-md">
+        <h2 class="text-2xl font-bold mb-6 text-center">ログイン</h2>
+        <form method="POST">
+            {{ form.hidden_tag() }}
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">メールアドレス</label>
+                {{ form.email(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <div class="mb-4">
+                <label class="block mb-1 font-semibold">パスワード</label>
+                {{ form.password(class="w-full px-3 py-2 border rounded focus:outline-none focus:ring-2 focus:ring-blue-400") }}
+            </div>
+            <button type="submit" class="w-full bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">ログイン</button>
+        </form>
+        <p class="text-sm mt-4 text-center">
+            アカウントがない方は <a href="{{ url_for('main.register') }}" class="text-blue-500 hover:underline">新規登録</a>
+        </p>
+    </div>
 </body>
 </html>
